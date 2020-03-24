@@ -1,0 +1,21 @@
+#!/bin/env sh
+
+country=${1:-germany}
+data="$(curl -s "https://corona.lmao.ninja/countries/${country}")"
+
+[ -z data ] && exit 1
+
+JQ_COMMAND="\
+def h: tostring | [while(length>0; .[:-3]) | .[-3:]] | reverse | join(\".\"); \
+@text \"\
+😷 \\(.cases | h)\
+ (+\\(.todayCases | h))\
+ 😨 \\(.active | h)\
+ 😱 \\(.critical | h)\
+ 💀 \\(.deaths | h)\
+ (+\\(.todayDeaths | h))\
+ 😇 \\(.recovered | h)\
+\"\
+"
+
+echo "$data" | jq -r "$JQ_COMMAND" 2> /dev/null
